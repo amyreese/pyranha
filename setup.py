@@ -11,6 +11,7 @@ setup(name='Pyranha',
                    'Development Status :: 2 - Pre-Alpha',
                    ],
       license='MIT License',
-      data_files=[('/usr/local/bin', ['bin/pyranha'])],
       packages=['pyranha', 'pyranha.irc'],
+      package_data={'pyranha': []},
+      scripts=['bin/pyranha'],
       )
