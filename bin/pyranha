@@ -1,0 +1,11 @@
+#!/usr/bin/env python2
+
+try:
+    from pyranha.window import init
+except:
+    import os, sys
+    sys.path.insert(0, os.getcwd())
+
+    from pyranha.window import init
+
+init()
