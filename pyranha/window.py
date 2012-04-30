@@ -2,15 +2,21 @@ from __future__ import absolute_import, division
 
 import os
 
-import gobject
 import gtk
-import webkit
+
+from pyranha.menubar import MainMenu
+from pyranha.webview import Webview
 
 html = """
 <html>
 <head>
     <title>Super Mega!</title>
     <style>
+    * {
+        box-sizing: border-box;
+        margin: 0px;
+        padding: 0px;
+    }
     ::-webkit-scrollbar {
         width: 4px;
         height: 4px;
@@ -37,33 +43,51 @@ html = """
 </html>
 """
 
-class Webview(webkit.WebView):
-
-    def __init__(self):
-        props = {'self-scrolling': True}
-        gobject.GObject.__gobject_init__(self, **props)
-        webkit.WebView.__init__(self)
-
 class MainWindow(gtk.Window):
 
     def __init__(self):
         gtk.Window.__init__(self)
 
+        self.modifiers = []
+
         self.webview = Webview()
         self.webview.connect('title-changed', self.on_title_changed)
+        self.webview.connect('load-finished', self.on_load_finished)
         self.webview.connect_after('navigation-requested', self.on_navigation_requested)
+
+        main_menu = MainMenu()
+        self.add_accel_group(main_menu.accelerators)
+
+        vbox = gtk.VBox(homogeneous=False, spacing=0)
+        vbox.pack_start(main_menu, expand=False, fill=True, padding=0)
 
         self.scroller = gtk.ScrolledWindow()
         # TODO: figure out why this doesn't work
         self.scroller.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
-
-        self.add(self.scroller)
         self.scroller.add(self.webview)
 
-        self.set_default_size(800, 600)
+        vbox.pack_start(self.scroller, expand=True, fill=True, padding=0)
+
+        self.command_entry = gtk.TextView()
+        self.command_entry.set_property('wrap-mode', gtk.WRAP_WORD)
+        #self.command_entry.connect('key-press-event', self.on_command_keydown)
+        self.command_entry.connect('key-release-event', self.on_command_keyup)
+        vbox.pack_start(self.command_entry, expand=False, fill=True, padding=0)
+
+        self.add(vbox)
+        self.set_default_size(900, 400)
         self.show_all()
 
         self.webview.load_string(html, "text/html", "iso-8895-15", "about")
+        self.command_entry.grab_focus()
+
+    def on_command_keyup(self, widget, event):
+        if not len(event.state.value_names):
+            if event.keyval == 65293: #enter
+                text_buffer = widget.get_buffer()
+                command = text_buffer.get_text(text_buffer.get_start_iter(), text_buffer.get_end_iter()).strip()
+                print 'command: ', command
+                text_buffer.set_text('')
 
     def on_navigation_requested(self, widget, frame, request):
         uri = request.get_uri()
@@ -75,8 +99,11 @@ class MainWindow(gtk.Window):
             os.system('xdg-open ' + uri)
             return 1
 
+    def on_load_finished(self, widget, frame):
+        self.webview.move_cursor(gtk.MOVEMENT_BUFFER_ENDS, 1)
+
     def on_title_changed(self, widget, frame, title):
-        print 'new title: ' + title
+        print 'title: ' + title
 
 def init():
     window = MainWindow()
