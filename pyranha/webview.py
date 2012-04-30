@@ -2,13 +2,11 @@ from __future__ import absolute_import, division
 
 import os
 
-import gobject
-import gtk
-import webkit
+from gi.repository import GObject, Gtk, WebKit
 
-class Settings(webkit.WebSettings):
+class Settings(WebKit.WebSettings):
     def __init__(self):
-        webkit.WebSettings.__init__(self)
+        WebKit.WebSettings.__init__(self)
 
         overrides = {
             'default-font-family': 'sans-serif',
@@ -33,12 +31,11 @@ class Settings(webkit.WebSettings):
         for key in overrides:
             self.set_property(key, overrides[key])
 
-class Webview(webkit.WebView):
+class Webview(WebKit.WebView):
 
     def __init__(self):
         props = {'self-scrolling': True}
-        gobject.GObject.__gobject_init__(self, **props)
-        webkit.WebView.__init__(self)
+        WebKit.WebView.__init__(self, **props)
 
         self.set_property('can-focus', False)
 

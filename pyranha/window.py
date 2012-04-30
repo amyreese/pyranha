@@ -1,8 +1,9 @@
 from __future__ import absolute_import, division
 
 import os
+import time
 
-import gtk
+from gi.repository import Gtk
 
 from pyranha.menubar import MainMenu
 from pyranha.webview import Webview
@@ -10,10 +11,10 @@ from pyranha.webview import Webview
 with open('prototype.html') as f:
     html = f.read()
 
-class MainWindow(gtk.Window):
+class MainWindow(Gtk.Window):
 
     def __init__(self):
-        gtk.Window.__init__(self)
+        Gtk.Window.__init__(self)
 
         self.webview = Webview()
         self.webview.connect('title-changed', self.on_title_changed)
@@ -23,18 +24,18 @@ class MainWindow(gtk.Window):
         main_menu = MainMenu()
         self.add_accel_group(main_menu.accelerators)
 
-        vbox = gtk.VBox(homogeneous=False, spacing=0)
+        vbox = Gtk.VBox(homogeneous=False, spacing=0)
         vbox.pack_start(main_menu, expand=False, fill=True, padding=0)
 
-        self.scroller = gtk.ScrolledWindow()
+        self.scroller = Gtk.ScrolledWindow()
         # TODO: figure out why this doesn't work
-        self.scroller.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
+        self.scroller.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.NEVER)
         self.scroller.add(self.webview)
 
         vbox.pack_start(self.scroller, expand=True, fill=True, padding=0)
 
-        self.command_entry = gtk.TextView()
-        self.command_entry.set_property('wrap-mode', gtk.WRAP_WORD)
+        self.command_entry = Gtk.TextView()
+        self.command_entry.set_property('wrap-mode', Gtk.WrapMode.WORD)
         self.command_entry.connect('key-press-event', self.on_command_keydown)
         #self.command_entry.connect('key-release-event', self.on_command_keyup)
         vbox.pack_start(self.command_entry, expand=False, fill=True, padding=0)
@@ -50,20 +51,20 @@ class MainWindow(gtk.Window):
         if not len(event.state.value_names):
             if event.keyval == 65293: #enter
                 text_buffer = widget.get_buffer()
-                command = text_buffer.get_text(text_buffer.get_start_iter(), text_buffer.get_end_iter()).strip()
+                command = text_buffer.get_text(text_buffer.get_start_iter(), text_buffer.get_end_iter(), True).strip()
                 print 'command: ', command
                 text_buffer.set_text('')
-                return gtk.TRUE
+                return True
 
     def on_navigation_requested(self, widget, frame, request):
         uri = request.get_uri()
         print 'uri: ' + uri
 
         if uri == 'about':
-            return 0
+            return False
         else:
-            os.system('xdg-open ' + uri)
-            return 1
+            Gtk.show_uri(None, uri, time.time())
+            return True
 
     def on_load_finished(self, widget, frame):
         pass
@@ -73,6 +74,6 @@ class MainWindow(gtk.Window):
 
 def init():
     window = MainWindow()
-    window.connect('delete-event', gtk.main_quit)
+    window.connect('delete-event', Gtk.main_quit)
     window.show_all()
-    gtk.main()
+    Gtk.main()
