@@ -62,7 +62,9 @@ class Dotfile(object):
 
     def __init__(self, name, use_defaults=True):
         """Initialize a new dotfile object with the given name.
-        If use_defaults is enabled, default values will be populated from `pyranha/dotfiles/<name>.yaml`."""
+        If use_defaults is enabled, default values will be populated from `pyranha/dotfiles/<name>.yaml`.
+        If use_defaults is disabled and the user's dotfile doesn't exist, the defaults will be loaded anyways."""
+
         self.name = name
         self.defaultfile = path.join(defaultfilepath, name + '.yaml')
         self.dotfile = path.join(dotfilepath, name)
@@ -76,17 +78,22 @@ class Dotfile(object):
     def load(self, fresh=False):
         """Load dotfile values from disk if the file has changed since last m_time.
         If fresh is true, any existing values will be discarded."""
-        if fresh:
-            self.values.clear()
-            if self.use_defaults and path.exists(self.defaultfile):
-                self.values = load(self.defaultfile)
+        user_values = None
 
         if path.exists(self.dotfile):
             m_time = os.stat(self.dotfile).st_mtime
             if m_time > self.m_time:
-                values = load(self.dotfile)
-                self.values = merge(self.values, values)
+                user_values = load(self.dotfile)
                 self.m_time = m_time
+
+        if fresh:
+            self.values.clear()
+
+            if (self.use_defaults or user_values is None) and path.exists(self.defaultfile):
+                self.values = load(self.defaultfile)
+
+        if user_values is not None:
+            self.values = merge(self.values, user_values)
 
     def save(self):
         """Save current dotfile values to disk, and update m_time."""
