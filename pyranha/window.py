@@ -2,11 +2,15 @@ from __future__ import absolute_import, division
 
 import os
 import time
+import urlparse
 
 from gi.repository import Gtk
 
 from pyranha.menubar import MainMenu
 from pyranha.webview import Webview
+
+with open('prototype.css') as f:
+    css = f.read()
 
 with open('prototype.html') as f:
     html = f.read()
@@ -44,7 +48,7 @@ class MainWindow(Gtk.Window):
         self.set_default_size(900, 400)
         self.show_all()
 
-        self.webview.load_string(html, "text/html", "iso-8895-15", "about")
+        self.webview.load_string(html.format(stylesheet=css), "text/html", "iso-8895-15", "pyranha://index")
         self.command_entry.grab_focus()
 
     def on_command_keydown(self, widget, event):
@@ -58,13 +62,20 @@ class MainWindow(Gtk.Window):
 
     def on_navigation_requested(self, widget, frame, request):
         uri = request.get_uri()
-        print 'uri: ' + uri
 
-        if uri == 'about':
+        if uri == 'pyranha://index':
             return False
         else:
-            Gtk.show_uri(None, uri, time.time())
-            return True
+            print 'uri: ' + uri
+            parts = urlparse.urlparse(uri)
+
+            if parts.scheme == 'pyranha':
+                # TODO: handle internal URIs
+                return False
+
+            else:
+                Gtk.show_uri(None, uri, time.time())
+                return True
 
     def on_load_finished(self, widget, frame):
         pass
