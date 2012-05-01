@@ -6,6 +6,7 @@ import urlparse
 
 from gi.repository import Gtk
 
+import pyranha.dotfiles
 from pyranha.menubar import MainMenu
 from pyranha.webview import Webview
 

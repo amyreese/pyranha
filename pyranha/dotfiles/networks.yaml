@@ -1,0 +1,11 @@
+freenode:
+  channels:
+    pyranha:
+  connect: false
+  nick: pyranha
+  servers:
+    chat.freenode.net:
+      password:
+      port: 6667
+      ssl: false
+      verify: true
