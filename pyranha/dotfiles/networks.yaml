@@ -1,7 +1,7 @@
 freenode:
   channels:
     pyranha:
-  connect: false
+  connect: true
   nick: pyranha
   servers:
     chat.freenode.net:
