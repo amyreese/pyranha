@@ -93,7 +93,7 @@ class Dotfile(object):
                 self.values = load(self.defaultfile)
 
         if user_values is not None:
-            self.values = merge(self.values, user_values)
+            self.values = merge(self.values, user_values, merge_new_keys=(not self.use_defaults))
 
     def save(self):
         """Save current dotfile values to disk, and update m_time."""
