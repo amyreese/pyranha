@@ -8,4 +8,4 @@ except:
 
     import pyranha
 
-pyranha.init()
+pyranha.start()

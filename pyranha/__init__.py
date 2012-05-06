@@ -1,17 +1,45 @@
 from __future__ import absolute_import, division
 
-def init():
+engine = None
+ui = None
+
+def async_engine_command(network, command, params=None):
+    """Send a command to the current backend engine."""
+    return engine.async_command(network, command, params=None)
+
+def async_ui_message(network, message_type, content=None):
+    """Send a message to the current frontend user interface."""
+    return ui.async_message(network, message_type, content)
+
+def start():
+    """Initialize both the backend and frontend, and wait for them to mutually exit."""
+    global engine
+    global ui
+
     import signal
+
+    def sigint(signum, frame):
+        print 'stopping'
+        if engine:
+            engine.stop()
+        if ui:
+            ui.stop()
+    signal.signal(signal.SIGINT, sigint)
+
 
     from pyranha.engine.engine import Engine
 
     engine = Engine()
+
+    from pyranha.ui.stdout import StdoutUI
+
+    ui = StdoutUI()
+
+    ui.start()
     engine.start()
 
-    def sigint(signum, frame):
-        print 'stopping'
-        engine.running = False
+    while engine.is_alive():
+        engine.join()
 
-    signal.signal(signal.SIGINT, sigint)
-
-    engine.join()
+    while ui.is_alive():
+        ui.join()
