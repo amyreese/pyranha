@@ -20,7 +20,7 @@ class StdoutUI(UserInterface):
                     break
 
                 if message_type == 'print' or message_type == 'debug':
-                    print '{}: {}'.format(network, content)
+                    print '{0}: {1}'.format(network, content)
 
                 elif message_type == 'stopped':
                     print 'ui received engine stopped'
@@ -37,5 +37,5 @@ class StdoutUI(UserInterface):
                     async_engine_command(None, 'stop')
 
                 else:
-                    print 'sending raw command: {}'.format(command)
+                    print 'sending raw command: {0}'.format(command)
                     async_engine_command('*', command)

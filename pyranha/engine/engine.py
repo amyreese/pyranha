@@ -100,14 +100,14 @@ class Engine(threading.Thread):
                     self.running = False
 
             except Exception as e:
-                async_ui_message(None, 'debug', 'exception occurred: {}'.format(e))
+                async_ui_message(None, 'debug', 'exception occurred: {0}'.format(e))
 
     def process_irc(self):
         while self.running:
             try:
                 self.irc.process_once(timeout=1)
             except Exception as e:
-                async_ui_message(None, 'debug', 'exception in process_irc: {}'.format(e))
+                async_ui_message(None, 'debug', 'exception in process_irc: {0}'.format(e))
 
     def stop(self):
         self.running = False
@@ -126,7 +126,7 @@ class Engine(threading.Thread):
             elif t == 'all_raw_messages':
                 pass
             else:
-                async_ui_message(network, 'print', 'type: {}, source: {}, target: {}, arguments: {}'.format(t, event.source(), event.target(), event.arguments()))
+                async_ui_message(network, 'print', 'type: {0}, source: {1}, target: {2}, arguments: {3}'.format(t, event.source(), event.target(), event.arguments()))
 
         except Exception as e:
-            async_ui_message(None, 'debug', 'exception during dispatch: {}'.format(e))
+            async_ui_message(None, 'debug', 'exception during dispatch: {0}'.format(e))

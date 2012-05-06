@@ -18,7 +18,7 @@ defaultfilepath = path.join(path.dirname(path.realpath(__file__)), 'dotfiles')
 dotfilepath = path.expanduser('~/.pyranha')
 if path.exists(dotfilepath):
     if not path.isdir(dotfilepath):
-        raise IOError('pyranha dotfile path {} exists but is not a directory'.format(dotfilepath))
+        raise IOError('pyranha dotfile path {0} exists but is not a directory'.format(dotfilepath))
 else:
     os.mkdir(dotfilepath)
 
@@ -101,7 +101,7 @@ class Dotfile(object):
         self.m_time = os.stat(self.dotfile).st_mtime
 
     def __repr__(self):
-        return '<Dotfile {}: {}>'.format(self.name, self.values.__repr__())
+        return '<Dotfile {0}: {1}>'.format(self.name, self.values.__repr__())
 
     ### dict view method mappings ###
 
