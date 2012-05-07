@@ -17,21 +17,21 @@ class Engine(threading.Thread):
         self.running = True
         self.commands = Queue.Queue()
 
-    def async_command(self, network, command, params=None):
+    def async_command(self, command, network=None, params=None):
         """Send an asynchronous command to engine thread, for the given network
         with the given parameters.  This is generally meant to be called from
         the UI thread, but can also be used to queue a command from the engine.
         A network value of '*' will send the command to all networks that are
         currently connected."""
-        self.commands.put((network, command, params))
+        self.commands.put((command, network, params))
 
     def next_command(self, block=False, timeout=None):
         """Get the next command from the queue, return a three-tuple with the
-        network, command, and parameters.  If the queue is empty and block is
+        command, network, and parameters.  If the queue is empty and block is
         false, None will be returned for all values."""
         try:
-            network, command, params = self.commands.get(block=block)
-            return network, command, params
+            command, network, params = self.commands.get(block=block)
+            return command, network, params
 
         except Queue.Empty:
             return None, None, None
@@ -43,7 +43,7 @@ class Engine(threading.Thread):
         self.connections = {}
         self.networks = {}
 
-        async_ui_message(None, 'debug', 'starting engine')
+        async_ui_message('debug', None, 'starting engine')
 
         irc_thread = threading.Thread(target=self.process_irc)
         irc_thread.start()
@@ -62,7 +62,7 @@ class Engine(threading.Thread):
                 self.networks[network] = s
                 self.connections[s] = network
 
-                async_ui_message(network, 'print', 'connecting...')
+                async_ui_message('print', network, 'connecting...')
                 s.connect(address, port, nick, password=password, username='pyranha', ircname='pyranha user', ssl=ssl)
 
         command_thread = threading.Thread(target=self.process_commands)
@@ -70,44 +70,44 @@ class Engine(threading.Thread):
 
         while command_thread.is_alive():
             command_thread.join()
-        async_ui_message(None, 'debug', 'command_thread stopped')
+        async_ui_message('debug', None, 'command_thread stopped')
 
         while irc_thread.is_alive():
             irc_thread.join()
-        async_ui_message(None, 'debug', 'irc_thread stopped')
+        async_ui_message('debug', None, 'irc_thread stopped')
 
-        async_ui_message(None, 'print', 'bye')
-        async_ui_message(None, 'stopped')
+        async_ui_message('print', None, 'bye')
+        async_ui_message('stopped')
 
     def process_commands(self):
         while self.running:
             try:
-                network, command, params = self.next_command(block=True)
+                command, network, params = self.next_command(block=True)
                 if network in self.networks:
                     s = self.networks[network]
-                    async_ui_message(network, 'debug', 'sending raw command: ' + command)
+                    async_ui_message('debug', network, 'sending raw command: ' + command)
                     s.send_raw(command)
                 elif network == '*':
                     for s in self.connections:
-                        async_ui_message(network, 'debug', 'sending raw command: ' + command)
+                        async_ui_message('debug', network, 'sending raw command: ' + command)
                         s.send_raw(command)
                 elif command == 'stop':
                     for network in self.networks:
                         s = self.networks[network]
-                        async_ui_message(network, 'print', 'disconnecting...')
+                        async_ui_message('print', network, 'disconnecting...')
                         s.disconnect()
                     time.sleep(1)
                     self.running = False
 
             except Exception as e:
-                async_ui_message(None, 'debug', 'exception occurred: {0}'.format(e))
+                async_ui_message('debug', None, 'exception occurred: {0}'.format(e))
 
     def process_irc(self):
         while self.running:
             try:
                 self.irc.process_once(timeout=1)
             except Exception as e:
-                async_ui_message(None, 'debug', 'exception in process_irc: {0}'.format(e))
+                async_ui_message('debug', None, 'exception in process_irc: {0}'.format(e))
 
     def stop(self):
         self.running = False
@@ -120,13 +120,13 @@ class Engine(threading.Thread):
 
             t = event.eventtype()
             if t == 'ping':
-                async_ui_message(network, 'print', 'PING PONG')
+                async_ui_message('print', network, 'PING PONG')
                 self.async_command(network, ' '.join(['PONG'] + event.arguments()))
 
             elif t == 'all_raw_messages':
                 pass
             else:
-                async_ui_message(network, 'print', 'type: {0}, source: {1}, target: {2}, arguments: {3}'.format(t, event.source(), event.target(), event.arguments()))
+                async_ui_message('print', network, 'type: {0}, source: {1}, target: {2}, arguments: {3}'.format(t, event.source(), event.target(), event.arguments()))
 
         except Exception as e:
-            async_ui_message(None, 'debug', 'exception during dispatch: {0}'.format(e))
+            async_ui_message('debug', None, 'exception during dispatch: {0}'.format(e))

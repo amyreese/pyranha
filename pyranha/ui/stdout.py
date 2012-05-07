@@ -15,7 +15,7 @@ class StdoutUI(UserInterface):
     def run(self):
         while self.running:
             while True:
-                network, message_type, content = self.next_message()
+                message_type, network, content = self.next_message()
                 if message_type is None:
                     break
 
@@ -34,7 +34,7 @@ class StdoutUI(UserInterface):
                     pass
 
                 elif command == 'quit':
-                    async_engine_command(None, 'stop')
+                    async_engine_command('stop')
 
                 else:
                     print 'sending raw command: {0}'.format(command)

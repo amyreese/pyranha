@@ -3,13 +3,13 @@ from __future__ import absolute_import, division
 engine = None
 ui = None
 
-def async_engine_command(network, command, params=None):
+def async_engine_command(command, network=None, params=None):
     """Send a command to the current backend engine."""
-    return engine.async_command(network, command, params=None)
+    return engine.async_command(command, network, params=None)
 
-def async_ui_message(network, message_type, content=None):
+def async_ui_message(message_type, network=None, content=None):
     """Send a message to the current frontend user interface."""
-    return ui.async_message(network, message_type, content)
+    return ui.async_message(message_type, network, content)
 
 def start():
     """Initialize both the backend and frontend, and wait for them to mutually exit."""
