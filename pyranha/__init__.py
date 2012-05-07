@@ -8,7 +8,7 @@ ui = None
 
 def async_engine_command(command, network=None, params=None):
     """Send a command to the current backend engine."""
-    return engine.async_command(command, network, params=None)
+    return engine.async_command(command, network, params)
 
 def async_ui_message(message_type, network=None, content=None):
     """Send a message to the current frontend user interface."""

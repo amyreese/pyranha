@@ -16,6 +16,8 @@ class StdoutUI(UserInterface):
         super(StdoutUI, self).__init__()
 
     def run(self):
+        async_engine_command('connect')
+
         while self.running:
             while True:
                 message_type, network, content = self.next_message()
@@ -29,6 +31,10 @@ class StdoutUI(UserInterface):
                     print 'ui received engine stopped'
                     self.running = False
 
+                else:
+                    source, target, arguments = content
+                    print '{0}: {1} from {2} to {3} with {4}'.format(network, message_type, source, target, arguments)
+
             r, w, x = select.select([sys.stdin,], [], [], 0.01)
             if r:
                 command = sys.stdin.readline().strip()
@@ -40,5 +46,4 @@ class StdoutUI(UserInterface):
                     async_engine_command('stop')
 
                 else:
-                    print 'sending raw command: {0}'.format(command)
-                    async_engine_command('*', command)
+                    async_engine_command('raw', '*', command)

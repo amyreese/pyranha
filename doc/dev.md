@@ -59,20 +59,13 @@ the request of the user.
 Command messages are three-tuples, consisting of the command name, network
 name, and parameters to the command.  The network name can be `*` to send the
 command to all connected networks, or `None` for commands that are not network
-specific.  The parameters can be None, a single string, or an iterable object.
+specific.  The parameters can be `None`, a single string, or an iterable object.
 
-*   `start`
+*   `connect [<network>]`
 
-    This tells the engine to initialize itself, and connect to any networks
-    that are configured to connect automatically.  This is triggered by the
-    user interface after it is ready to begin accepting events from the engine.
-
-*   `stop`
-
-    This command tells the engine to disconnect all connections and stop
-    itself.  This is triggered by the user interface when the user has
-    requested the application to halt and exit.  When the engine has finished,
-    it will emit the `stopped` message back to the UI before exiting.
+    This command tells the engine to connect to an IRC network with the given
+    name.  If the network is `*`, the engine will connect to all networks that
+    are configured to connect automatically at start.
 
 *   `raw <network> <message:string>`
 
@@ -93,6 +86,13 @@ specific.  The parameters can be None, a single string, or an iterable object.
     *   `/join <channel>`
     *   `/part`
 
+*   `stop`
+
+    This command tells the engine to disconnect all connections and stop
+    itself.  This is triggered by the user interface when the user has
+    requested the application to halt and exit.  When the engine has finished,
+    it will emit the `stopped` message back to the UI before exiting.
+
 
 Event Message Reference
 -----------------------
@@ -106,11 +106,6 @@ and message content.  The network name can be `None` for events that are not
 network specific.  The message content can be `None`, a single string, an
 iterable object, or a dictionary.
 
-*   `stopped`
-
-    This event informs the user interface that the engine has stopped after
-    receiving a `stop` command.
-
 *   `print [network] <string>`
 
     This event represents a message from the engine directed towards the user.
@@ -121,3 +116,8 @@ iterable object, or a dictionary.
 
     Similar to the `print` event, except this message should only be displayed
     to the user if they have explicitly enabled debug output from the program.
+
+*   `stopped`
+
+    This event informs the user interface that the engine has stopped after
+    receiving a `stop` command.
