@@ -1,3 +1,6 @@
+# Copyright (c) 2012 John Reese
+# Licensed under the MIT License
+
 from __future__ import absolute_import, division
 
 import select
