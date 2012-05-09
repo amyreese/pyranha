@@ -14,7 +14,7 @@ def async_ui_message(message_type, network=None, content=None):
     """Send a message to the current frontend user interface."""
     return ui.async_message(message_type, network, content)
 
-def start():
+def start(frontend='stdout'):
     """Initialize both the backend and frontend, and wait for them to mutually exit."""
     global engine
     global ui
@@ -29,17 +29,24 @@ def start():
             ui.stop()
     signal.signal(signal.SIGINT, sigint)
 
+    frontend = frontend.lower()
+
+    if frontend == 'stdout':
+        from pyranha.ui.stdout import StdoutUI
+        ui = StdoutUI()
+
+    elif frontend == 'gtk':
+        from pyranha.ui.gtk import GtkUI
+        ui = GtkUI()
+
+    else:
+        raise Exception('unsupported frontend type "{0}"'.format(frontend))
 
     from pyranha.engine.engine import Engine
-
     engine = Engine()
 
-    from pyranha.ui.stdout import StdoutUI
-
-    ui = StdoutUI()
-
-    ui.start()
     engine.start()
+    ui.start()
 
     while engine.is_alive():
         engine.join()

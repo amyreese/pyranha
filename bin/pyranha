@@ -3,6 +3,8 @@
 # Copyright (c) 2012 John Reese
 # Licensed under the MIT License
 
+import sys
+
 try:
     import pyranha
 except:
@@ -11,4 +13,7 @@ except:
 
     import pyranha
 
-pyranha.start()
+if len(sys.argv) > 1:
+    pyranha.start(frontend=sys.argv[1])
+else:
+    pyranha.start()
