@@ -1,14 +1,11 @@
-from __future__ import absolute_import, division
-
 import os
 import time
 import urlparse
 
 from gi.repository import Gtk
 
-import pyranha.dotfiles
-from pyranha.menubar import MainMenu
-from pyranha.webview import Webview
+from menubar import MainMenu
+from webview import Webview
 
 with open('prototype.css') as f:
     css = f.read()
