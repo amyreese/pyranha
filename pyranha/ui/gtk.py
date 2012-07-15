@@ -34,9 +34,13 @@ class GtkUI(UserInterface):
         GObject.idle_add(self.process_message, (message_type, network, content))
 
     def run(self):
-        self.window = MainWindow()
-        self.window.show_all()
-        Gtk.main()
+        try:
+            self.window = MainWindow()
+            self.window.show_all()
+            Gtk.main()
+        except:
+            async_engine_command('stop')
+            raise
 
     def process_message(self, (message_type, network, content)):
         message = 'in process_message: {0}, {1}, {2}'.format(message_type, network, content)
