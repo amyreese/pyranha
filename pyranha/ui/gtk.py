@@ -103,13 +103,12 @@ class MainWindow(Gtk.Window):
         self.command_entry.grab_focus()
 
     def on_command_keydown(self, widget, event):
-        if not len(event.state.value_names):
-            if event.keyval == 65293: #enter
-                text_buffer = widget.get_buffer()
-                command = text_buffer.get_text(text_buffer.get_start_iter(), text_buffer.get_end_iter(), True).strip()
-                print 'command: ', command
-                text_buffer.set_text('')
-                return True
+        if event.keyval == 65293 and not Gdk.ModifierType.SHIFT_MASK & event.state:
+            text_buffer = widget.get_buffer()
+            command = text_buffer.get_text(text_buffer.get_start_iter(), text_buffer.get_end_iter(), True).strip()
+            print 'command: ', command
+            text_buffer.set_text('')
+            return True
 
     def start(self, widget):
         async_engine_command('connect')
