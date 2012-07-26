@@ -9,14 +9,12 @@ from pyranha import async_engine_command
 from pyranha.ui import UserInterface
 
 css = """\
-GtkNotebook tab GtkLabel.new_messages {
-    color: #ff0000;
-}
-GtkNotebook tab:first-child {
-    -tab-curvature: 0;
-    -initial-gap: 10;
-    -GtkNotebook-tab-curvature: 0;
-    -GtkNotebook-initial-gap: 10;
+* {
+    background: #ffffff;
+    color: #000000;
+    margin: 0;
+    padding: 0;
+    font-size: 10;
 }
 """
 
@@ -99,39 +97,21 @@ class MainWindow(Gtk.Window):
 
         self.css_provider = Gtk.CssProvider()
         self.css_provider.load_from_data(css)
-        #Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), self.css_provider, 900)
-        #self.style_context.add_provider(self.css_provider, 900)
-
-        main_menu = MainMenu()
-        self.add_accel_group(main_menu.accelerators)
+        Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), self.css_provider, 900)
 
         vbox = Gtk.VBox(homogeneous=False, spacing=0)
-        vbox.pack_start(main_menu, expand=False, fill=True, padding=0)
-
-        self.notebook = Gtk.Notebook()
-        self.notebook.set_show_border(False)
-        self.notebook.set_scrollable(True)
 
         self.scroller = Gtk.ScrolledWindow()
-        # TODO: figure out why this doesn't work
-        #self.scroller.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.NEVER)
 
         self.content_box = Gtk.VBox(homogeneous=False, spacing=0)
         self.scroller.add_with_viewport(self.content_box)
 
-        self.notebook.append_page(self.scroller, Gtk.Label('freenode'))
-        self.notebook.append_page(Gtk.ScrolledWindow(), Gtk.Label('#foo'))
-        self.notebook.append_page(Gtk.ScrolledWindow(), Gtk.Label('#pyranha'))
-        self.notebook.append_page(Gtk.ScrolledWindow(), Gtk.Label('ea2d'))
-        self.notebook.append_page(Gtk.ScrolledWindow(), Gtk.Label('#boring'))
-        self.notebook.append_page(Gtk.ScrolledWindow(), Gtk.Label('#pyranha'))
-
-        vbox.pack_start(self.notebook, expand=True, fill=True, padding=0)
+        vbox.pack_start(self.scroller, expand=True, fill=True, padding=0)
 
         self.command_entry = Gtk.TextView()
         self.command_entry.set_property('wrap-mode', Gtk.WrapMode.WORD)
         self.command_entry.connect('key-press-event', self.on_command_keydown)
-        #self.command_entry.connect('key-release-event', self.on_command_keyup)
+        self.command_entry.connect('focus-out-event', self.on_focus_out)
         vbox.pack_start(self.command_entry, expand=False, fill=True, padding=0)
 
         self.add(vbox)
@@ -163,32 +143,4 @@ class MainWindow(Gtk.Window):
         async_engine_command('connect')
 
     def stop(self, widget=None, event=None):
-        async_engine_command('stop')
-
-class MainMenu(Gtk.MenuBar):
-
-    def __init__(self):
-        Gtk.MenuBar.__init__(self)
-
-        self.accelerators = Gtk.AccelGroup()
-        self.append(self.file_menu())
-
-    def file_menu(self):
-        menu = Gtk.Menu()
-
-        quit_item = Gtk.MenuItem('Quit')
-        quit_item.add_accelerator('activate',
-                                  self.accelerators,
-                                  ord('Q'),
-                                  Gdk.ModifierType.CONTROL_MASK,
-                                  Gtk.AccelFlags.VISIBLE)
-        quit_item.connect('activate', self.on_quit)
-        menu.append(quit_item)
-
-        menu_item = Gtk.MenuItem('File')
-        menu_item.set_submenu(menu)
-
-        return menu_item
-
-    def on_quit(self, widget):
         async_engine_command('stop')
