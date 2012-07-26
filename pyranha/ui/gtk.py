@@ -52,6 +52,44 @@ class GtkUI(UserInterface):
         if message_type == 'stopped':
             Gtk.main_quit()
 
+def vicode(event):
+    """Very simple and dirty method for generating a vi-like key binding from a given keypress event."""
+    k = event.hardware_keycode
+    v = event.keyval
+    m = event.state
+    s = event.string
+
+    result = ''
+
+    if m & Gdk.ModifierType.CONTROL_MASK:
+        result += 'C-'
+    if m & Gdk.ModifierType.SUPER_MASK:
+        result += 'S-'
+    if m & Gdk.ModifierType.META_MASK:
+        result += 'M-'
+
+    if (v >= 65 and v <= 90) or (v >= 97 and v <= 122) or \
+        (v >= 48 and v <= 57) or (v >= 33 and v <= 41):
+        result += chr(v)
+    else:
+        if m & Gdk.ModifierType.SHIFT_MASK:
+            result += '^-'
+
+        if k == 23:
+            result += 'Tab'
+        elif k == 36:
+            result += 'Enter'
+        elif k == 112:
+            result += 'PgUp'
+        elif k == 117:
+            result += 'PgDn'
+
+        else:
+            return ''
+
+    return result
+
+
 class MainWindow(Gtk.Window):
 
     def __init__(self):
@@ -103,17 +141,28 @@ class MainWindow(Gtk.Window):
         self.command_entry.grab_focus()
 
     def on_command_keydown(self, widget, event):
-        if event.keyval == 65293 and not Gdk.ModifierType.SHIFT_MASK & event.state:
+        code = vicode(event)
+
+        if code == '':
+            return False
+
+        if code == 'Enter':
             text_buffer = widget.get_buffer()
             command = text_buffer.get_text(text_buffer.get_start_iter(), text_buffer.get_end_iter(), True).strip()
             print 'command: ', command
             text_buffer.set_text('')
             return True
 
+        if code == 'C-q':
+            self.stop(None, None)
+            return True
+
+        return False
+
     def start(self, widget):
         async_engine_command('connect')
 
-    def stop(self, widget, event):
+    def stop(self, widget=None, event=None):
         async_engine_command('stop')
 
 class MainMenu(Gtk.MenuBar):
