@@ -9,7 +9,7 @@ interface.  The user is expected to know enough about IRC and dotfiles to
 have the absolute minimum of UI elements; keyboard shortcuts and commands
 trump on-screen buttons.  Documentation is of highest importance.
 
-Python, Gtk, Webkit, and YAML.
+Python, Gtk, CSS, and YAML.
 
 
 Planned Features
@@ -19,6 +19,16 @@ Planned Features
 - Hot config file editing and reloading
 - Inline image preview and URL processing
 - Completely styled using CSS
+
+
+Roadmap
+-------
+
+1. Prototype UI layout and CSS styling
+1. Hot-swapping CSS themes
+1. Keyboard/command UX
+1. Inline image previews
+1. Inline URL processing and previews/summaries
 
 
 License
