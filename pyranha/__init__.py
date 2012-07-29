@@ -14,7 +14,7 @@ def async_ui_message(message_type, network=None, content=None):
     """Send a message to the current frontend user interface."""
     return ui.async_message(message_type, network, content)
 
-def start(frontend='stdout'):
+def start(frontend='gtk'):
     """Initialize both the backend and frontend, and wait for them to mutually exit."""
     global engine
     global ui
