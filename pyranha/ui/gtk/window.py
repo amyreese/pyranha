@@ -69,7 +69,13 @@ class MainWindow(Gtk.Window):
             return True
 
         elif command == 'quit':
-            self.stop(None, None)
+            self.stop()
+
+        else:
+            method = command.replace('-', '_')
+            method = getattr(self, method, None)
+            if method is not None:
+                method()
 
         return True
 
