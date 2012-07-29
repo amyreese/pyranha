@@ -1,0 +1,15 @@
+Tab: complete
+
+C-Tab: window-next
+C-^-Tab: window-previous
+C-PgUp: window-previous
+C-PgDn: window-next
+C-w: window-close
+
+C-q: quit
+
+C-Up: history-previous
+C-Down: history-next
+C-a: edit-at-beginning
+C-e: edit-at-end
+C-u: edit-clear-all
