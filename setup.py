@@ -12,6 +12,6 @@ setup(name='Pyranha',
                    ],
       license='MIT License',
       packages=['pyranha', 'pyranha.irc'],
-      package_data={'pyranha': ['dotfiles/*']},
+      package_data={'pyranha': ['dotfiles/*', 'themes/*']},
       scripts=['bin/pyranha'],
       )
