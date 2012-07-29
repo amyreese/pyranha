@@ -6,35 +6,11 @@ from __future__ import absolute_import, division
 import os
 from os import path
 
-# load YAML, and default to using libYAML whenever possible
-import yaml
-try:
-    from yaml import CSafeLoader as SafeLoader, CSafeDumper as SafeDumper
-except ImportError:
-    print 'falling back to pure python yaml'
-    from yaml import SafeLoader, SafeDumper
+from pyranha import installpath, userpath
+from pyranha.yaml import load, save
 
-# Default dotfile path
-defaultfilepath = path.join(path.dirname(path.realpath(__file__)), 'dotfiles')
-
-# Check the user's .pyranha and create it if needed
-dotfilepath = path.expanduser('~/.pyranha')
-if path.exists(dotfilepath):
-    if not path.isdir(dotfilepath):
-        raise IOError('pyranha dotfile path {0} exists but is not a directory'.format(dotfilepath))
-else:
-    os.mkdir(dotfilepath)
-
-
-def load(filename):
-    """Load the given filename and return the resulting object."""
-    with open(filename) as f:
-        return yaml.load(f.read(), Loader=SafeLoader)
-
-def save(filename, obj):
-    """Write the given object to the given filename."""
-    with open(filename, 'w') as f:
-        return f.write(yaml.dump(obj, default_flow_style=False, Dumper=SafeDumper))
+defaultfilepath = path.join(installpath, 'dotfiles')
+dotfilepath = userpath
 
 def merge(current, new, merge_new_keys=False):
     """Recursively merge two dictionaries, overwriting values in current with values in new.
