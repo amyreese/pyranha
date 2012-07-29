@@ -1,0 +1,23 @@
+name: Reset
+description: All theme elements reset to basic black and white.  A good starting point for custom themes.
+author: John Reese <john@noswap.com>
+reset: false
+---
+* {
+    margin: 0;
+    padding: 0;
+
+    background: #ffffff;
+    color: #000000;
+
+    font-family: Monaco;
+    font-size: 10;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+}
+
+*:selected {
+    background: #000000;
+    color: #ffffff;
+}

@@ -1,0 +1,13 @@
+name: Dark
+description: A dark variant of Reset.
+author: John Reese <john@noswap.com>
+---
+* {
+    background: #000000;
+    color: #ffffff;
+}
+
+*:selected {
+    background: #ffffff;
+    color: #000000;
+}

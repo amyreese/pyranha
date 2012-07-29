@@ -8,16 +8,7 @@ from gi.repository import Gdk, Gtk, GLib, GObject
 from pyranha import async_engine_command
 from pyranha.dotfiles import Dotfile
 from pyranha.keymap import Keymap
-
-css = """\
-* {
-    background: #ffffff;
-    color: #000000;
-    margin: 0;
-    padding: 0;
-    font-size: 10;
-}
-"""
+from pyranha.ui.gtk.theme import themes, load_themes
 
 class MainWindow(Gtk.Window):
 
@@ -26,9 +17,7 @@ class MainWindow(Gtk.Window):
         self.connect('show', self.start)
         self.connect('delete-event', self.stop)
 
-        self.css_provider = Gtk.CssProvider()
-        self.css_provider.load_from_data(css)
-        Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), self.css_provider, 900)
+        self.css_provider = None
 
         vbox = Gtk.VBox(homogeneous=False, spacing=0)
 
@@ -51,6 +40,8 @@ class MainWindow(Gtk.Window):
 
         self.command_entry.grab_focus()
         self.keymap = Keymap()
+
+        self.update_theme()
 
     def on_focus_out(self, widget, event):
         self.command_entry.grab_focus()
@@ -84,3 +75,22 @@ class MainWindow(Gtk.Window):
 
     def stop(self, widget=None, event=None):
         async_engine_command('stop')
+
+    def update_theme(self):
+        load_themes()
+        config = Dotfile('config')
+
+        theme = config['theme']
+        if theme not in themes:
+            print 'configured theme "{0}" not found'.format(theme)
+            theme = 'native'
+
+        theme = themes[theme]
+        css = theme.render()
+
+        if self.css_provider is not None:
+            Gtk.StyleContext.remove_provider_for_screen(Gdk.Screen.get_default(), self.css_provider)
+
+        self.css_provider = Gtk.CssProvider()
+        self.css_provider.load_from_data(css)
+        Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), self.css_provider, 900)

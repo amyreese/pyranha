@@ -13,3 +13,5 @@ C-Down: history-next
 C-a: edit-at-beginning
 C-e: edit-at-end
 C-u: edit-clear-all
+
+C-c: update-theme
