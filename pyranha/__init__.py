@@ -3,6 +3,22 @@
 
 from __future__ import absolute_import, division
 
+import os
+from os import path
+
+
+# Default dotfile path
+installpath = path.dirname(path.realpath(__file__))
+
+# Check the user's .pyranha and create it if needed
+userpath = path.expanduser('~/.pyranha')
+if path.exists(userpath):
+    if not path.isdir(userpath):
+        raise IOError('pyranha dotfile path {0} exists but is not a directory'.format(userpath))
+else:
+    os.mkdir(userpath)
+
+
 engine = None
 ui = None
 
