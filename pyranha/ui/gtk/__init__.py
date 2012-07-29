@@ -5,6 +5,7 @@ from __future__ import absolute_import, division
 
 from gi.repository import Gdk, Gtk, GLib, GObject
 
+from pyranha import async_engine_command
 from pyranha.ui import UserInterface
 from pyranha.ui.gtk.window import MainWindow
 
