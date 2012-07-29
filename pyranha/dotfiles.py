@@ -124,6 +124,10 @@ class Dotfile(object):
         self.load()
         return self.values.__iter__()
 
+    def get(self, key, default=None):
+        self.load()
+        return self.values.get(key, default)
+
     def keys():
         self.load()
         return self.values.keys()
