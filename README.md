@@ -24,8 +24,10 @@ Planned Features
 Roadmap
 -------
 
+1. <s>Hot-swapping CSS themes</s>
+1. Cross-platform build and testing
+1. Usable network/channel UX
 1. Prototype UI layout and CSS styling
-1. Hot-swapping CSS themes
 1. Keyboard/command UX
 1. Inline image previews
 1. Inline URL processing and previews/summaries
