@@ -5,7 +5,7 @@ from __future__ import absolute_import, division
 
 from gi.repository import Gdk, Gtk, GLib, GObject
 
-from pyranha import async_engine_command
+from pyranha import async_engine_command, async_ui_message
 from pyranha.dotfiles import Dotfile
 from pyranha.keymap import Keymap
 from pyranha.ui.gtk.theme import themes, load_themes
@@ -20,18 +20,35 @@ class MainWindow(Gtk.Window):
         self.css_provider = None
 
         vbox = Gtk.VBox(homogeneous=False, spacing=0)
+        hbox = Gtk.HBox(homogeneous=False, spacing=0)
 
         self.scroller = Gtk.ScrolledWindow()
 
         self.content_box = Gtk.VBox(homogeneous=False, spacing=0)
+        self.content_box.connect('size-allocate', self.channel_resized)
         self.scroller.add_with_viewport(self.content_box)
+        self.scroller.set_vadjustment(Gtk.Adjustment())
 
-        vbox.pack_start(self.scroller, expand=True, fill=True, padding=0)
+        hbox.pack_start(self.scroller, expand=True, fill=True, padding=0)
+
+        self.listmodel = Gtk.ListStore(str)
+        self.listmodel.append(['@foobot'])
+        self.listmodel.append(['+someguy'])
+        self.listmodel.append(['h8rgonnah8'])
+
+        self.listview = Gtk.TreeView(self.listmodel)
+        self.listview.set_headers_visible(False)
+        renderer = Gtk.CellRendererText()
+        self.listview.append_column(Gtk.TreeViewColumn('#somechan', renderer, text=0))
+        self.listview.connect('row-activated', self.listview_clicked)
+
+        hbox.pack_start(self.listview, expand=False, fill=True, padding=0)
+        vbox.pack_start(hbox, expand=True, fill=True, padding=0)
 
         self.command_entry = Gtk.TextView()
         self.command_entry.set_property('wrap-mode', Gtk.WrapMode.WORD)
-        self.command_entry.connect('key-press-event', self.on_command_keydown)
-        self.command_entry.connect('focus-out-event', self.on_focus_out)
+        #self.command_entry.connect('key-press-event', self.on_command_keydown)
+        self.connect('key-press-event', self.on_command_keydown)
         vbox.pack_start(self.command_entry, expand=False, fill=True, padding=0)
 
         self.add(vbox)
@@ -43,6 +60,18 @@ class MainWindow(Gtk.Window):
 
         self.update_theme()
 
+    def channel_resized(self, widget, rectangle):
+        adj = self.scroller.get_vadjustment()
+        adj.set_value(adj.get_upper())
+
+    def listview_clicked(self, widget, path, column):
+        text_buffer = self.command_entry.get_buffer()
+        message = text_buffer.get_text(text_buffer.get_start_iter(), text_buffer.get_end_iter(), True).strip()
+        message = '/msg nick ' + message
+        text_buffer.set_text(message)
+
+        async_ui_message('focus-entry')
+
     def on_focus_out(self, widget, event):
         self.command_entry.grab_focus()
 
@@ -53,7 +82,7 @@ class MainWindow(Gtk.Window):
             return False
 
         elif command == 'send-buffer':
-            text_buffer = widget.get_buffer()
+            text_buffer = self.command_entry.get_buffer()
             message = text_buffer.get_text(text_buffer.get_start_iter(), text_buffer.get_end_iter(), True).strip()
             print 'message: ', message
             text_buffer.set_text('')

@@ -35,9 +35,15 @@ class GtkUI(UserInterface):
     def process_message(self, (message_type, network, content)):
         message = 'in process_message: {0}, {1}, {2}'.format(message_type, network, content)
         label = Gtk.Label()
+        label.set_selectable(True)
+        label.set_line_wrap(True)
+        label.set_alignment(0,0)
         label.set_markup(message)
         label.show()
         self.window.content_box.pack_start(label, expand=False, fill=False, padding=0)
 
         if message_type == 'stopped':
             Gtk.main_quit()
+
+        elif message_type == 'focus-entry':
+            self.window.command_entry.grab_focus()
