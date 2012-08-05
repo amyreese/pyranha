@@ -45,6 +45,8 @@ def start(frontend='gtk'):
             ui.stop()
     signal.signal(signal.SIGINT, sigint)
 
+    import pyranha.logging
+
     frontend = frontend.lower()
 
     if frontend == 'stdout':
