@@ -12,6 +12,7 @@ import time
 from pyranha import async_ui_message
 from pyranha.dotfiles import Dotfile
 from pyranha.irc.client import IRC
+from pyranha.engine.network import Network
 
 class Engine(threading.Thread):
 
@@ -97,59 +98,49 @@ class Engine(threading.Thread):
             method = 'event_' + event.eventtype()
 
             if t == 'ping':
-                async_ui_message('print', network, 'PING!')
+                async_ui_message('print', network.name, 'PING!')
                 conn.pong(*event.arguments())
-                async_ui_message('print', network, 'PONG!')
+                async_ui_message('print', network.name, 'PONG!')
 
             elif hasattr(self, method):
                 getattr(self, method)(event.source(), event.target(), event.arguments())
 
             else:
-                async_ui_message(t, network, (event.source(), event.target(), event.arguments()))
+                async_ui_message(t, network.name, (event.source(), event.target(), event.arguments()))
 
         except Exception as e:
             async_ui_message('debug', None, 'exception during dispatch: {0}'.format(e))
 
-    def command_connect(self, network, params):
-        if network is None:
-            for network in self.network_config:
-                self.command_connect(network, params)
+    def command_connect(self, name, params, explicit=True):
+        if name is None:
+            for name in self.network_config:
+                self.command_connect(name, params, explicit=False)
 
-        elif network in self.network_config:
-            n = self.network_config[network]
+        elif name in self.network_config:
+            if explicit or self.network_config[name]['connect']:
+                network = Network(name, self.network_config[name], self.irc)
+                connection = network.connect()
 
-            if n['connect']:
-                address = n['servers'].keys()[0]
-                port = n['servers'][address]['port']
-                ssl = n['servers'][address]['ssl']
-                password = n['servers'][address]['password']
-                nick = n['nick']
-
-                s = self.irc.server()
-                self.networks[network] = s
-                self.connections[s] = network
-
-                async_ui_message('print', network, 'connecting...')
-                s.connect(address, port, nick, password=password, username='pyranha', ircname='pyranha user', ssl=ssl)
+                self.networks[name] = network
+                self.connections[connection] = network
 
         else:
-            async_ui_message('print', network, 'network {0} not found in configuration, could not connect'.format(network))
+            async_ui_message('print', name, 'network {0} not found in configuration, could not connect'.format(name))
 
     def command_raw(self, network, params):
         if network == '*':
             async_ui_message('print', '*', 'sending raw command to all networks: {0}'.format(params))
-            for s in self.connections:
-                s.send_raw(params)
+            for network in self.networks.values():
+                network.raw(params)
         else:
-            s = self.networks[network]
-            async_ui_message('print', network, 'sending raw command: {0}'.format(params))
-            s.send_raw(params)
+            network = self.networks[network]
+            async_ui_message('print', network.name, 'sending raw command: {0}'.format(params))
+            network.raw(params)
 
     def command_stop(self, network, params):
-        for network in self.networks:
-            s = self.networks[network]
-            async_ui_message('print', network, 'disconnecting...')
-            s.disconnect()
+        for network in self.networks.values():
+            async_ui_message('print', network.name, 'disconnecting...')
+            network.disconnect()
         time.sleep(1)
         self.running = False
 
