@@ -22,6 +22,12 @@ class Network(Listener):
         self.connection = None
         self.channels = {}
 
+    def __repr__(self):
+        return '<pyranha.Network({0})>'.format(self.name)
+
+    def __str__(self):
+        return 'Network({0})'.format(self.name)
+
     def connect(self):
         self.connection = self.irc.server()
         self.connection.connect(self.server,
