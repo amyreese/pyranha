@@ -32,15 +32,16 @@ class MainWindow(Gtk.Window):
 
         hbox.pack_start(self.scroller, expand=True, fill=True, padding=0)
 
-        self.listmodel = Gtk.ListStore(str)
-        self.listmodel.append(['@foobot'])
-        self.listmodel.append(['+someguy'])
-        self.listmodel.append(['h8rgonnah8'])
+        self.listmodel = Gtk.ListStore(str, str)
+        self.listmodel.append(['@','foobot'])
+        self.listmodel.append(['+','someguy'])
+        self.listmodel.append(['','h8rgonnah8'])
 
         self.listview = Gtk.TreeView(self.listmodel)
         self.listview.set_headers_visible(False)
         renderer = Gtk.CellRendererText()
-        self.listview.append_column(Gtk.TreeViewColumn('#somechan', renderer, text=0))
+        self.listview.append_column(Gtk.TreeViewColumn('', renderer, text=0))
+        self.listview.append_column(Gtk.TreeViewColumn('', renderer, text=1))
         self.listview.connect('row-activated', self.listview_clicked)
 
         hbox.pack_start(self.listview, expand=False, fill=True, padding=0)
