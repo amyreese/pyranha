@@ -92,8 +92,9 @@ class Engine(threading.Thread):
         try:
             network = self.connections[conn]
 
-            method = 'on_' + event.eventtype()
-            getattr(network, method)(event)
+            t = event.eventtype()
+            if t != 'all_raw_messages':
+                network.notify(t, event)
 
         except Exception as e:
             log.exception('exception during dispatch: {0}'.format(e))
