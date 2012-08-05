@@ -13,6 +13,7 @@ from pyranha import async_ui_message
 from pyranha.dotfiles import Dotfile
 from pyranha.irc.client import IRC
 from pyranha.engine.network import Network
+from pyranha.logging import log
 
 class Engine(threading.Thread):
 
@@ -47,7 +48,7 @@ class Engine(threading.Thread):
         self.connections = {}
         self.networks = {}
 
-        async_ui_message('debug', None, 'starting engine')
+        log.info('starting engine')
 
         irc_thread = threading.Thread(target=self.process_irc)
         irc_thread.start()
@@ -57,13 +58,12 @@ class Engine(threading.Thread):
 
         while command_thread.is_alive():
             command_thread.join()
-        async_ui_message('debug', None, 'command_thread stopped')
+        log.debug('command_thread stopped')
 
         while irc_thread.is_alive():
             irc_thread.join()
-        async_ui_message('debug', None, 'irc_thread stopped')
+        log.debug('irc_thread stopped')
 
-        async_ui_message('print', None, 'bye')
         async_ui_message('stopped')
 
     def process_irc(self):
@@ -71,22 +71,22 @@ class Engine(threading.Thread):
             try:
                 self.irc.process_once(timeout=1)
             except Exception as e:
-                async_ui_message('debug', None, 'exception in process_irc: {0}'.format(e))
+                log.exception('exception in process_irc: {0}'.format(e))
 
     def process_commands(self):
         while self.running:
             try:
                 command, network, params = self.next_command(block=True)
-                async_ui_message('debug', network, 'processing command {0} with parameters {1}'.format(command, params))
+                log.info('processing command {0} from {1} with parameters {2}'.format(command, network, params))
 
                 method = 'command_' + command
                 if hasattr(self, method):
                     getattr(self, method)(network, params)
                 else:
-                    async_ui_message('debug', network, 'method {0} not found, command discarded'.format(method))
+                    log.warning('method {0} not found, command discarded'.format(method))
 
             except Exception as e:
-                async_ui_message('debug', None, 'exception processing command: {0}'.format(e))
+                log.exception('exception processing command: {0}'.format(e))
 
     def process_events(self, conn, event):
         try:
@@ -96,7 +96,7 @@ class Engine(threading.Thread):
             getattr(network, method)(event)
 
         except Exception as e:
-            async_ui_message('debug', None, 'exception during dispatch: {0}'.format(e))
+            log.exception('exception during dispatch: {0}'.format(e))
 
     def command_connect(self, name, params, explicit=True):
         if name is None:
@@ -112,21 +112,21 @@ class Engine(threading.Thread):
                 self.connections[connection] = network
 
         else:
-            async_ui_message('print', name, 'network {0} not found in configuration, could not connect'.format(name))
+            log.warning('network {0} not found in configuration, could not connect'.format(name))
 
     def command_raw(self, network, params):
         if network == '*':
-            async_ui_message('print', '*', 'sending raw command to all networks: {0}'.format(params))
+            log.info('sending raw command to all networks: {0}'.format(params))
             for network in self.networks.values():
                 network.raw(params)
         else:
             network = self.networks[network]
-            async_ui_message('print', network.name, 'sending raw command: {0}'.format(params))
+            log.info('sending raw command to {0}: {1}'.format(network.name, params))
             network.raw(params)
 
     def command_stop(self, network, params):
         for network in self.networks.values():
-            async_ui_message('print', network.name, 'disconnecting...')
+            log.info('disconnecting {0}...'.format(network.name))
             network.disconnect()
         time.sleep(1)
         self.running = False

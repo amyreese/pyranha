@@ -10,7 +10,6 @@ import yaml
 try:
     from yaml import CSafeLoader as SafeLoader, CSafeDumper as SafeDumper
 except ImportError:
-    print 'falling back to pure python yaml'
     from yaml import SafeLoader, SafeDumper
 
 document_marker = re.compile('^---\w*$', re.M)

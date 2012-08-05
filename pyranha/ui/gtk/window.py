@@ -8,6 +8,7 @@ from gi.repository import Gdk, Gtk, GLib, GObject
 from pyranha import async_engine_command, async_ui_message
 from pyranha.dotfiles import Dotfile
 from pyranha.keymap import Keymap
+from pyranha.logging import log
 from pyranha.ui.gtk.theme import themes, load_themes
 
 class MainWindow(Gtk.Window):
@@ -84,7 +85,8 @@ class MainWindow(Gtk.Window):
         elif command == 'send-buffer':
             text_buffer = self.command_entry.get_buffer()
             message = text_buffer.get_text(text_buffer.get_start_iter(), text_buffer.get_end_iter(), True).strip()
-            print 'message: ', message
+            log.info('message: {0}'.format(message))
+            async_engine_command('raw', '*', message)
             text_buffer.set_text('')
             return True
 
@@ -111,7 +113,7 @@ class MainWindow(Gtk.Window):
 
         theme = config['theme']
         if theme not in themes:
-            print 'configured theme "{0}" not found'.format(theme)
+            log.warning('configured theme "{0}" not found; falling back to native'.format(theme))
             theme = 'native'
 
         theme = themes[theme]

@@ -5,6 +5,7 @@ from __future__ import absolute_import, division
 
 from pyranha.engine.listener import Listener
 from pyranha.engine.channel import Channel
+from pyranha.logging import log
 
 class Network(Listener):
     def __init__(self, name, config, irc):
@@ -42,4 +43,6 @@ class Network(Listener):
         self.connection.send_raw(message)
 
     def on_ping(self, event):
-        self.connection.pong(*event.arguments)
+        log.info('PING!')
+        self.connection.pong(*event.arguments())
+        log.info('PONG!')
