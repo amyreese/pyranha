@@ -6,7 +6,6 @@ from __future__ import absolute_import, division
 import os
 from os import path
 
-
 # Default dotfile path
 installpath = path.dirname(path.realpath(__file__))
 
@@ -34,16 +33,6 @@ def start(frontend='gtk'):
     """Initialize both the backend and frontend, and wait for them to mutually exit."""
     global engine
     global ui
-
-    import signal
-
-    def sigint(signum, frame):
-        print 'stopping'
-        if engine:
-            engine.stop()
-        if ui:
-            ui.stop()
-    signal.signal(signal.SIGINT, sigint)
 
     import pyranha.logging
 
