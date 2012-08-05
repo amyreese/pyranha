@@ -90,23 +90,10 @@ class Engine(threading.Thread):
 
     def process_events(self, conn, event):
         try:
-            network = None
-            if conn in self.connections:
-                network = self.connections[conn]
+            network = self.connections[conn]
 
-            t = event.eventtype()
-            method = 'event_' + event.eventtype()
-
-            if t == 'ping':
-                async_ui_message('print', network.name, 'PING!')
-                conn.pong(*event.arguments())
-                async_ui_message('print', network.name, 'PONG!')
-
-            elif hasattr(self, method):
-                getattr(self, method)(event.source(), event.target(), event.arguments())
-
-            else:
-                async_ui_message(t, network.name, (event.source(), event.target(), event.arguments()))
+            method = 'on_' + event.eventtype()
+            getattr(network, method)(event)
 
         except Exception as e:
             async_ui_message('debug', None, 'exception during dispatch: {0}'.format(e))

@@ -40,3 +40,6 @@ class Network(Listener):
 
     def raw(self, message):
         self.connection.send_raw(message)
+
+    def on_ping(self, event):
+        self.connection.pong(*event.arguments)
