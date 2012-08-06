@@ -34,3 +34,6 @@ console.setLevel(logging.DEBUG)
 console.setFormatter(format)
 log.addHandler(console)
 
+def log_irc_event(event):
+    log.debug('irc event: {0}, source: {1}, target: {2}, arguments: {3}'.format(
+        event.eventtype(), event.source(), event.target(), event.arguments()))
