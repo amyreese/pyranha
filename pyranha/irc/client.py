@@ -756,7 +756,9 @@ class ServerConnection(Connection):
 
     def join(self, channel, key=""):
         """Send a JOIN command."""
-        self.send_raw("JOIN %s%s" % (channel, (key and (" " + key))))
+        command = "JOIN %s%s" % (channel, (key and (" " + key)))
+        print channel, key, command
+        self.send_raw(command)
 
     def kick(self, channel, nick, comment=""):
         """Send a KICK command."""

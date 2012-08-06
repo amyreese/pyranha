@@ -21,7 +21,6 @@ class GtkUI(UserInterface):
     def async_message(self, message_type, network=None, content=None):
         """Override the default async_message implementation to tell Gtk's main loop
         to run process_message with the given message attributes."""
-        log.debug('queueing idle_add: {0}, {1}, {2}'.format(message_type, network, content))
         GObject.idle_add(self.process_message, (message_type, network, content))
 
     def run(self):
@@ -34,17 +33,14 @@ class GtkUI(UserInterface):
             raise
 
     def process_message(self, (message_type, network, content)):
-        message = 'in process_message: {0}, {1}, {2}'.format(message_type, network, content)
-        label = Gtk.Label()
-        label.set_selectable(True)
-        label.set_line_wrap(True)
-        label.set_alignment(0,0)
-        label.set_markup(message)
-        label.show()
-        self.window.content_box.pack_start(label, expand=False, fill=False, padding=0)
-
         if message_type == 'stopped':
             Gtk.main_quit()
 
         elif message_type == 'focus-entry':
             self.window.command_entry.grab_focus()
+
+        elif message_type == 'new_channel':
+            self.window.on_new_channel(network, content)
+
+        elif message_type == 'message':
+            self.window.on_message(network, content)

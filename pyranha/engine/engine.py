@@ -92,9 +92,8 @@ class Engine(threading.Thread):
         try:
             network = self.connections[conn]
 
-            t = event.eventtype()
-            if t != 'all_raw_messages':
-                network.notify(t, event)
+            if event.eventtype() != 'all_raw_messages':
+                network.notify(event)
 
         except Exception as e:
             log.exception('exception during dispatch: {0}'.format(e))
@@ -114,6 +113,10 @@ class Engine(threading.Thread):
 
         else:
             log.warning('network {0} not found in configuration, could not connect'.format(name))
+
+    def command_send(self, network, (channel, message)):
+        log.debug('send message to {0} {1}: {2}'.format(network, channel, message))
+        self.command_raw(network.name, message)
 
     def command_raw(self, network, params):
         if network == '*':
